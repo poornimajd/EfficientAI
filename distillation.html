@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>CS7150 - The Quest for Efficient AI</title>
+    <meta property="og:title" content=Your Project Name" />
+    <meta name="twitter:title" content="Your Project Name" />
+    <meta
+      name="description"
+      content="Your project about your cool topic described right here."
+    />
+    <meta
+      property="og:description"
+      content="Your project about your cool topic described right here."
+    />
+    <meta
+      name="twitter:description"
+      content="Your project about your cool topic described right here."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <!-- bootstrap for mobile-friendly layout -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+      integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700"
+      rel="stylesheet"
+    />
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body class="nd-docs">
+    <div class="nd-pageheader">
+      <div class="container">
+        <h1 class="lead">
+          <nobr class="widenobr">CS7150 - The Quest for Efficient AI</nobr>
+        </h1>
+        <nobr class="widenobr"
+          ><small>Poornima JD and Archit Bhonsle</small></nobr
+        >
+      </div>
+    </div>
+    <!-- end nd-pageheader -->
+
+    <div class="container">
+      <div class="row">
+        <div class="col justify-content-center text-center">
+          <h2>An Analysis of Knowledge Distillation</h2>
+          <p>When is knowledge distillation worth it?</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <h2>Introduction</h2>
+
+          <p>
+            Knowledge Distillation is a technique designed to transfer the
+            "knowledge" or learned generalization capabilities from a large,
+            complex, but potentially slow and resource-intensive "teacher" model
+            (such as an ensemble or a heavily regularized network) to a smaller,
+            faster "student" model suitable for deployment. The foundational
+            idea, explored by
+            <a href="#bucila-2006">Bucila et al. (2006) [1]</a>, involved
+            training the student model to mimic the input-output function of the
+            teacher by using the teacher to label a large set of unlabeled or
+            synthetically generated "pseudo-data."
+            <a href="#hinton-2015">Hinton et al. [2]</a> refined and popularized
+            this concept for deep learning by proposing the use of the teacher's
+            full output probability distribution (the "soft targets") rather
+            than just the final prediction. These soft targets, often further
+            softened using a "temperature" parameter, contain richer information
+            about the similarities the teacher model has learned between classes
+            (termed "dark knowledge"). By training the student to match these
+            soft targets (often in combination with the original hard labels),
+            the goal is to enable the compact student model to learn to
+            generalize in a similar, effective way as the cumbersome teacher
+            <a href="#hinton-2015">([2])</a>, thus bridging the gap between
+            model performance and deployment practicality.
+          </p>
+
+          <h2>Related Works</h2>
+
+          <ul>
+            <li>
+              <strong>Model Compression</strong>
+              <em
+                >(<a href="#bucila-2006">Bucila, Caruana, Niculescu-Mizil [1]</a
+                >)</em
+              >
+              Introduced the foundational concept of training a smaller model
+              (neural network) to mimic the function of a larger, complex model
+              (ensemble) using pseudo-labeled data, demonstrating the
+              feasibility of transferring learned behavior.
+            </li>
+            <li>
+              <strong>Distilling the Knowledge in a Neural Network</strong>
+              <em>(<a href="#hinton-2015">Hinton, Vinyals, Dean [2]</a>)</em>
+              Formalized modern KD for deep learning, introducing the core
+              mechanisms of "soft targets" (using teacher probabilities) and
+              "temperature scaling" to transfer the teacher's generalization
+              ability ("dark knowledge").
+            </li>
+            <li>
+              <strong>FitNets: Hints for Thin Deep Nets</strong>
+              <em
+                >(<a href="#romero-2014"
+                  >Romero, Ballas, Kahou, Chassang, Gatta, Bengio [3]</a
+                >)</em
+              >
+              Expanded the concept of "knowledge" beyond outputs by introducing
+              feature-based KD, showing that transferring intermediate
+              representations ("hints") is valuable and enables different
+              student architectures.
+            </li>
+            <li>
+              <strong>Does Knowledge Distillation Really Work?</strong>
+              <em
+                >(<a href="#stanton-2021"
+                  >Stanton, Carbonneau, Golemo, Bengio [4]</a
+                >)</em
+              >
+              Empirically and theoretically investigated the "fidelity paradox,"
+              showing that students often generalize better even when *not*
+              perfectly mimicking the teacher, challenging simple imitation
+              views.
+            </li>
+          </ul>
+
+          <h2>Method</h2>
+
+          <p>
+            <a
+              target="_blank"
+              href="https://colab.research.google.com/drive/1Ps8MxanMFghyWsDZuUHBTTNO3TqBR5WZ?usp=sharing"
+              >The experiment</a
+            >
+            systematically investigates and compares the effectiveness of
+            different neural network architectures and specific model
+            compression techniques on the MNIST handwritten digit classification
+            task. Initially, it establishes performance benchmarks by defining
+            and training baseline models of varying complexity – Multi-Layer
+            Perceptrons (MLPs), Convolutional Neural Networks (CNNs), and
+            Residual Networks (ResNets), each with 'Simple', 'Medium', and
+            'Deep' variants. This provides baseline accuracy and model size
+            metrics for each architecture.
+          </p>
+
+          <p>
+            The experiment then focuses on applying and evaluating two common
+            model compression methods: dynamic quantization (reducing the
+            precision of model weights) and knowledge distillation (training
+            smaller 'student' models using guidance from larger, pre-trained
+            'teacher' models). Each baseline model is subjected to these
+            techniques, and the resulting compressed models are evaluated for
+            their final accuracy and size. The experiment carefully tracks
+            metrics and utilizes visualizations to compare the trade-offs
+            between model accuracy and size across the different architectures
+            and the applied compression strategies, aiming to demonstrate how
+            quantization and distillation can create smaller, more efficient
+            models while potentially preserving performance.
+          </p>
+
+          <img
+            class="w-75 mx-auto"
+            style="display: block"
+            src="images/everything.png"
+            alt="Model Accuracy vs Size Comparison Plot"
+          />
+          <p>
+            This is the glass half full perspective of knowledge distillation.
+            We can think of it as strictly improving our models using the
+            knowledge of more complex models.
+          </p>
+
+          <img
+            class="w-75 mx-auto"
+            style="display: block"
+            src="images/distillation_comparison_plot.png"
+            alt="Impact of Knowledge Distillation Plot"
+          />
+          <p>
+            This is the glass half full perspective of knowledge distillation.
+            We can think of it as strictly improving our models using the
+            knowledge of more complex models.
+          </p>
+
+          <img
+            class="w-75 mx-auto"
+            style="display: block"
+            src="images/teacher_vs_distilled_plot.png"
+            alt="Teacher vs Distilled Student Plot"
+          />
+          <p>
+            But we can also think of it as accepting a downgrade in performance
+            from the larger models.
+          </p>
+
+          <div style="display: flex">
+            <img
+              class="w-50"
+              src="images/quantized_comparison_plot.png"
+              alt="Impact of Quantization Plot"
+            />
+            <img
+              class="w-50"
+              src="images/pruned_comparison_plot.png"
+              alt="Impact of Pruning Plot"
+            />
+          </div>
+          <p>
+            We also compared the impact of other compression techniques with the
+            same framework. Pruning led to a huge drop in accuracy. Quantization
+            on the other hand had no drop in accuracy and reduced the size of
+            the models to 25% of the original.
+          </p>
+
+          <h2>Conclusion</h2>
+          <p>
+            Unlike quantization, which is restricted to a 25% reduction in size,
+            based on the architecture of the student model, we can compress our
+            models by an orders of magnitude. Moreover, the idea unlocks many
+            new ways to learn like self-distillation, cross-modal, data-free,
+            multi-teacher, automated, adversarial and many more forms of
+            knowledge distillation.
+          </p>
+
+          <h2>References</h2>
+
+          <p>
+            <a name="bucila-2006">[1]</a>
+            <a
+              target="_blank"
+              href="https://www.cs.cornell.edu/~caruana/compression.kdd06.pdf"
+              >Buciluǎ, Cristian, Rich Caruana, and Alexandru Niculescu-Mizil.
+              <em>Model compression.</em></a
+            >
+            Proceedings of the 12th ACM SIGKDD international conference on
+            Knowledge discovery and data mining (2006).
+          </p>
+          <p>
+            <a name="hinton-2015">[2]</a>
+            <a target="_blank" href="https://arxiv.org/abs/1503.02531"
+              >Hinton, Geoffrey, Oriol Vinyals, and Jeff Dean.
+              <em>Distilling the knowledge in a neural network.</em></a
+            >
+            arXiv preprint arXiv:1503.02531 (2015).
+          </p>
+          <p>
+            <a name="romero-2014">[3]</a>
+            <a target="_blank" href="https://arxiv.org/abs/1412.6550"
+              >Romero, Adriana, Nicolas Ballas, Samira Ebrahimi Kahou, Antoine
+              Chassang, Carlo Gatta, and Yoshua Bengio.
+              <em>Fitnets: Hints for thin deep nets.</em></a
+            >
+            arXiv preprint arXiv:1412.6550 (2014).
+          </p>
+          <p>
+            <a name="stanton-2021">[4]</a>
+            <a
+              target="_blank"
+              href="https://proceedings.neurips.cc/paper/2021/hash/376c6b9ff3bedbbea56751a84fffc10c-Abstract.html"
+              >Stanton, Samuel, Marc-Alexandre Carbonneau, Florian Golemo, and
+              Yoshua Bengio.
+              <em>Does knowledge distillation really work?.</em></a
+            >
+            Advances in neural information processing systems 34 (2021):
+            6906-6919.
+          </p>
+
+          <h2>Team Members</h2>
+
+          <ul>
+            <li>Poornima JD</li>
+            <li>Archit Bhonsle</li>
+          </ul>
+        </div>
+        <!--col-->
+      </div>
+      <!--row -->
+    </div>
+    <!-- container -->
+
+    <footer class="nd-pagefooter">
+      <div class="row">
+        <div class="col-6 col-md text-center">
+          <a href="https://cs7150.baulab.info/">About CS 7150</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+  <script>
+    $(document).on("click", ".clickselect", function (ev) {
+      var range = document.createRange();
+      range.selectNodeContents(this);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+    // Google analytics below.
+    window.dataLayer = window.dataLayer || [];
+  </script>
+</html>
