@@ -1,123 +1,29 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <title>Part 1: Quantization</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- bootstrap for mobile-friendly layout -->
+    <!-- Bootstrap for mobile-friendly layout -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Open Sans', sans-serif;
-            line-height: 1.6;
-            padding-bottom: 50px;
-        }
-
-        .container {
-            padding-top: 20px;
-        }
-
-        h1 {
-            font-size: 2.25rem;
-            font-weight: 300;
-            line-height: 1.3;
-            text-align: center;
-            color: white;
-            background-color: #233BF5;
-            padding: 2rem 15px;
-            margin-bottom: 1.5rem;
-        }
-
-        h2, h3 {
-            font-family: 'Open Sans', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: black;
-            margin-top: 40px;
-            margin-bottom: 20px;
-            display: inline-block;
-            position: relative;
-        }
-
-            h2::after, h3::after {
-                content: "";
-                display: block;
-                width: 60%;
-                height: 2px;
-                background: linear-gradient(to right, #007bff, transparent);
-                margin-top: 6px;
-            }
-
-            h2.lead, h3.lead {
-                font-size: 1.5rem;
-                font-weight: 700;
-            }
-
-        p {
-            margin-bottom: 20px;
-        }
-
-        a {
-            color: #1565c0;
-            text-decoration: none;
-        }
-
-            a:hover {
-                color: #0d47a1;
-                text-decoration: underline;
-            }
-
-        img {
-            max-width: 50%;
-            height: auto;
-            margin: 20px auto;
-            border-radius: 5px;
-            display: block;
-        }
-
-        .figure-caption {
-            font-size: 0.9rem;
-            color: #555;
-            text-align: center;
-        }
-
-        ol, ul {
-            margin-bottom: 20px;
-            padding-left: 30px;
-        }
-
-        li {
-            margin-bottom: 10px;
-        }
-
-        strong {
-            font-weight: 700;
-        }
-
-        .code-repository {
-            background-color: #f5f5f5;
-            padding: 20px;
-            border-radius: 5px;
-            margin: 30px 0;
-        }
-
-        .widenobr {
-            white-space: normal;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1> Part 1: Quantization </h1>
-        <h2 class="lead"><nobr class="widenobr">Introduction</nobr></h2>
+        <div class="nd-pageheader">
+            <div class="container">
+                <h1>Part 1: Quantization</h1>
+            </div>
+        </div>
+        <h2> Introduction </h2>
         <p>
             Quantization is a crucial technique for reducing neural network complexity, enabling faster and more energy-efficient inference on hardware-constrained devices. In simple terms, quantization involves converting the high-precision numerical representations (typically 32-bit floating-point numbers) used during model training into lower-precision forms (such as 8-bit integers). Contrary to a common misconception, quantization is not merely rounding values; it systematically maps floating-point numbers to discrete integer representations by scaling them appropriately.
             A simplified overview of the quantization is shown in <a href="#fig1">Figure 1</a>.
         </p>
 
         <div class="text-center" id="fig1">
-            <img src="quantre.png" alt="Overview of quantization process" class="img-fluid">
+            <img src="images/quantre.png" alt="Overview of quantization process" class="img-fluid">
             <p class="figure-caption">Figure 1: A high-level view of the quantization process, showing conversion from floating-point to integer representations.</p>
         </div>
 
@@ -127,9 +33,9 @@
 
         <p>Technically, quantization can significantly reduce memory storage and computational costs. For example, transitioning from 32-bit floating-point to 8-bit integer quantization reduces memory usage by fourfold and computational operations (like matrix multiplications) up to sixteenfold. However, this reduction comes with the trade-off of introducing quantization noise, potentially leading to accuracy degradation if not managed carefully.</p>
 
-        <h2>Background / Related Work</h2>
+        <h2>Related Works</h2>
 
-        <p>Several quantization methods have emerged<a href="#nagel-2021">[1]</a>:</p>
+        <p>Several quantization methods have emerged <a href="#nagel-2021">[1]</a>:</p>
         <ol>
             <li><strong>Symmetric Quantization</strong>: This method uses a single scaling factor and zero as the midpoint, suitable for tensors with distributions symmetric around zero. It simplifies arithmetic operations by avoiding additional offset calculations.</li>
             <li><strong>Asymmetric Quantization</strong>: Asymmetric quantization uses both a scaling factor and a zero-point offset, providing flexibility to handle tensors with asymmetric distributions. Although computationally more complex, it generally achieves better accuracy by precisely fitting the quantization grid to data distributions.</li>
@@ -148,20 +54,25 @@
         <p>
             <b>Pipeline:</b> Post-Training Quantization (PTQ)
 
-            The simplified pipeline is as shown in <a href="#fig2">Figure 2</a>.</p>
-            <div class="text-center" id="fig2">
-                <img src="pipe.png" alt="Simple PTQ pipeline" class="img-fluid">
-                <p class="figure-caption">Figure 2: A simple overview of the PTQ pipeline.</p>
-            </div>
+            The simplified pipeline is as shown in <a href="#fig2">Figure 2</a>.
+        </p>
+        <div class="text-center" id="fig2">
+            <img src="images/pipe.png" alt="Simple PTQ pipeline" class="img-fluid">
+            <p class="figure-caption">Figure 2: A simple overview of the PTQ pipeline.</p>
+        </div>
 
-            <p>In PTQ, we start with a pre-trained model and a small set of calibration data. This data helps us understand the range of values (activations and weights) the model produces.
+        <p>
+            In PTQ, we start with a pre-trained model and a small set of calibration data. This data helps us understand the range of values (activations and weights) the model produces.
 
-            Calibration is done using this small dataset to determine scale and zero-point values for each layer. Once the calibration parameters are fixed, the model is quantized - meaning its weights and activations are converted from high-precision floats to low-precision integers (usually 8-bit). 
-            The result is a quantized model that is smaller and faster, making it easier to deploy on devices with limited resources. This process does not require re-training the model and works even with limited or unlabeled data.</p>
-        <p>However, it can sometimes lead to a small drop in accuracy compared to methods like QAT (Quantization-Aware Training).
+            Calibration is done using this small dataset to determine scale and zero-point values for each layer. Once the calibration parameters are fixed, the model is quantized - meaning its weights and activations are converted from high-precision floats to low-precision integers (usually 8-bit).
+            The result is a quantized model that is smaller and faster, making it easier to deploy on devices with limited resources. This process does not require re-training the model and works even with limited or unlabeled data.
+        </p>
+        <p>
+            However, it can sometimes lead to a small drop in accuracy compared to methods like QAT (Quantization-Aware Training).
             To reduce this accuracy drop, several enhancements and optimization methods <a href="#glogam-2022">[2]</a>, such as Bias Correction (Adjusts the mean and variance of weight values after quantization), Ada Round(Replaces the default round to nearest approach with a learned rounding scheme ), etc have been developed, thus making PTQ a strong choice for efficient model deployment.
-            </p>
-            <p><b>Implementation:</b> In this project, we conducted quantization experiments using a pretrained ResNet-18 model, evaluated on a subset of the ImageNet test dataset. The primary evaluation metrics included frames per second (FPS), model size (parameter count only), and accuracy (top-1 and top-5).
+        </p>
+        <p>
+            <b>Implementation:</b> In this project, we conducted quantization experiments using a pretrained ResNet-18 model, evaluated on a subset of the ImageNet test dataset. The primary evaluation metrics included frames per second (FPS), model size (parameter count only), and accuracy (top-1 and top-5).
 
         </p>
         <p>We specifically implemented and tested the following quantization methods:</p>
@@ -174,7 +85,8 @@
                     <li>
                         Quantization involved computing the scale (α) and zero-point (β) values for each layer, which are needed to map floating-point numbers to integers. To do this, we used two common techniques: min-max and percentile range setting.
 
-                        <p>In the min-max method, we simply take the smallest and largest values from the data to define the range. This is easy to implement but can be sensitive to outliers.
+                        <p>
+                            In the min-max method, we simply take the smallest and largest values from the data to define the range. This is easy to implement but can be sensitive to outliers.
                         </p>
                         <p>In the percentile method, we ignore extreme values at the edges (like the lowest 0.1% and highest 0.1%) and focus on the main bulk of the data. This gives a more stable range and often results in better accuracy after quantization.</p>
 
@@ -206,7 +118,7 @@
         <p>Our quantization experiments yielded several interesting findings, visualized in the following figures:</p>
 
         <b>Custom PTQ Int8 Implementation Results (CPU)</b>
-        <img src="img_customsc.png" alt="Comparison of accuracy and model size between original ResNet18 and INT8 quantized versions" class="img-fluid" />
+        <img src="images/img_customsc.png" alt="Comparison of accuracy and model size between original ResNet18 and INT8 quantized versions" class="img-fluid" />
         <p>
             Figure 1: The figure compares the performance of the original ResNet-18 model with its INT8 quantized versions using Min-Max and Percentile methods. In terms of accuracy, the Min-Max approach maintained the original model’s top-1 accuracy at 78%, while even improving the top-5 accuracy to 96%. The Percentile method slightly increased the top-1 accuracy to 80%, though the top-5 accuracy dipped slightly to 90%.
 
@@ -214,7 +126,7 @@
         </p>
 
         <b>PyTorch Static PTQ API (INT8 Quantization) Results (CPU) </b>
-        <img src="img_torchapisc.png" alt="Comparison of accuracy, model size, and inference speed on CPU" class="img-fluid" />
+        <img src="images/img_torchapisc.png" alt="Comparison of accuracy, model size, and inference speed on CPU" class="img-fluid" />
         <p>
             Figure 2:
             The final results, averaged over five runs, compare the original ResNet-18 model with its INT8 static quantized version. The quantized model maintained the same top-5 accuracy of 90%, while the top-1 accuracy dropped slightly from 76% to 74%.
@@ -223,7 +135,7 @@
         </p>
 
         <b>TensorRT FP16 Quantization (GPU) Results</b>
-        <img src="img_torchtrtsc.png" alt="Comparison of PyTorch and TensorRT FP16 implementations on GPU" class="img-fluid" />
+        <img src="images/img_torchtrtsc.png" alt="Comparison of PyTorch and TensorRT FP16 implementations on GPU" class="img-fluid" />
         <p>
             Figure 3:
             The performance comparison highlights the impact of converting the ResNet-18 model to FP16 precision using TensorRT for GPU deployment. Both the original PyTorch model and the TensorRT-optimized FP16 version achieved the same top-1 and top-5 accuracies of 76% and 90%, respectively, indicating no loss in prediction quality.
@@ -231,18 +143,40 @@
             However, the TensorRT FP16 model delivered a significant improvement in inference speed—from 362.17 FPS to 1127.79 FPS,while reducing the model size by nearly half. This showcases the power of FP16 optimization for high-throughput, low-latency inference on GPUs.
         </p>
 
-        <!--<div class="code-repository">-->
-         <h2>Code Repository</h2> [todo]
-            <p>The code implementing our method is available at: <a href="#">GitHub Repository</a></p> [todo]
-        <!--</div>-->
+
 
         <h2>Discussion</h2>
-        <p>Through this project, we found that [summarize results or insights]. A few challenges we encountered were [mention issues or tradeoffs]. We believe [any opinions or perspectives on the outcome or future work].</p> [todo add umar]
+        <p>
+            Our experiments show that Post-Training Quantization (PTQ) offers a strong balance between performance and efficiency, even without retraining. The custom PTQ method using percentile range slightly outperformed the min-max method in top-1 accuracy, highlighting the value of better range selection. However, both methods resulted in 75% model size reduction, making them viable for edge deployment.
+
+            The PyTorch PTQ API further streamlined the process, offering activation quantization and consistent accuracy while doubling inference speed. This makes it a practical choice when ease of integration and quick turnaround are important.
+        </p>
+
+            <p>On the GPU side, TensorRT's FP16 quantization provided the best inference speed (3x faster) with no accuracy loss, showing its strength for high-throughput applications.
+
+            Overall, our results suggest that even simple quantization approaches-when applied carefully-can yield substantial gains in speed and memory without severely impacting model accuracy. PTQ, especially with proper calibration, is an excellent choice for fast, low-cost deployment on both CPUs and GPUs.
+        </p>
+
 
         <h2>References</h2>
-        <p id="nagel-2021">[1] Nagel, Markus, et al. "A white paper on neural network quantization." <em>arXiv preprint arXiv:2106.08295</em> (2021).</p>
-        <p id="glogam-2022">[2] Gholami, Amir, et al. "A survey of quantization methods for efficient neural network inference." Low-Power Computer Vision. <em>Chapman and Hall/CRC 291-326.</em> (2022).</p>
-  
+        <p id="nagel-2021">
+            [1] <a href="https://arxiv.org/pdf/2106.08295" target="_blank" style="color: blue; text-decoration: none;">
+                Nagel, Markus, et al. "A white paper on neural network quantization."
+            </a> <em>arXiv preprint arXiv:2106.08295</em> (2021).
+        </p>
+        <p id="glogam-2022">
+            [2] <a href="https://arxiv.org/pdf/2106.08295" target="_blank" style="color: blue; text-decoration: none;">
+                Gholami, Amir, et al. "A survey of quantization methods for efficient neural network inference."
+            </a> <em>Low-Power Computer Vision. Chapman and Hall/CRC 291-326.</em> (2022).
+        </p>
+        <p id="jamil-2024">
+            [3] <a href="https://github.com/hkproj/quantization-notes/tree/main" target="_blank" style="color: blue; text-decoration: none;">
+                Umar Jamil. "Quantization Notes."
+            </a> <em>GitHub Repository</em>, 2024.
+        </p>
+
+
+
     </div>
 
     <!-- Bootstrap JS -->
