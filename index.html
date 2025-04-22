@@ -35,35 +35,26 @@
                 <p>
                     As deep learning models continue to deliver remarkable performance across a wide range of tasks, deploying them in resource-constrained environments such as mobile devices, edge systems, and autonomous platforms remains a challenge due to their high computational demands, memory usage, and power consumption. This has made it essential to explore strategies that can reduce these overheads while preserving performance.
 
-                    In this context, our project explores how techniques like quantization and knowledge distillation can be effectively used to optimize deep neural networks for deployment in such limited-resource settings.</p>
-                <p>
-
-                    Quantization reduces the precision of weights and activations in neural networks from high precision (typically 32-bit floating-point) to lower precision (such as 8-bit integers), significantly reducing memory usage and computational load. For instance, transitioning from 32-bit to 8-bit representations can decrease memory usage by a factor of four and reduce computational costs for matrix operations by up to sixteen-fold. Despite these benefits, quantization introduces approximation errors, potentially degrading model accuracy if not managed carefully.
+                    In this context, our project explores how techniques like quantization and knowledge distillation can be effectively used to optimize deep neural networks for deployment in such limited-resource settings.
                 </p>
                 <p>
-                    Knowledge distillation (KD), on the other hand, transfers the predictive capabilities of a large, high-performance "teacher" model into a smaller, more efficient "student" model by training the student to mimic the teacher's "soft" probability outputs rather than traditional "hard" labels. While KD can substantially compress models with minimal accuracy loss, aggressive compression solely via KD often leads to noticeable performance degradation.
+
+                    Quantization reduces the precision of weights and activations (e.g., from 32-bit to 8-bit), cutting memory and compute costs significantly, but may introduce accuracy loss.
                 </p>
-                    In this work, we experimentally explore and benchmark the practical benefits and trade-offs of these two techniques:<br />
+                <p>
+                    Knowledge Distillation trains a smaller model (student) to mimic a larger one (teacher) using soft outputs, enabling compression with minimal performance drop, though extreme compression can hurt accuracy.
+                </p>
+                In this work, we benchmark both techniques: implementing static PTQ (manual and PyTorch-based) and performing KD on GPU, to analyze their trade-offs in accuracy and efficiency for deployment in constrained environments.
 
-                    <ul>
-                        <li>
-                            Quantization (Post-Training Quantization - PTQ): We implemented and compared static PTQ both manually and using PyTorch's built-in functions, evaluating the performance differences on CPUs and GPUs.
-                        </li>
-                        <li>
-                            Knowledge Distillation: We distilled knowledge from a larger model to a compact model exclusively on GPU, assessing accuracy retention and efficiency gains.
-                        </li>
-                    </ul>
-
-
-                    Our contributions offer a comparative perspective on how PTQ and KD techniques individually impact model efficiency and accuracy, providing empirical insights and practical recommendations for effectively deploying deep neural networks in resource-sensitive environments.
                 </p>
 
-                <h2>Explore the Project</h2>
-                <p>The project neatly splits into the two paths:</p>
+                <h3>Explore the Project</h3>
                 <ul>
                     <li><a href="part1.html">Part 1: Quantization</a></li>
                     <li><a href="distillation.html">Part 2: Knowledge Distillation</a></li>
                 </ul>
+            </div>
+        </div>
 
                 <h2>Team Members</h2>
 
@@ -71,9 +62,11 @@
                     <li>Poornima JD</li>
                     <li>Archit Bhonsle</li>
                 </ul>
-            </div>
-        </div>
-    </div>
+
+
+            </div><!--col-->
+        </div><!--row -->
+    </div> <!-- container -->
 
     <footer class="nd-pagefooter">
         <div class="row">
